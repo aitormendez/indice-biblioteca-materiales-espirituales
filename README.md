@@ -72,3 +72,28 @@ npm run build
 ```
 
 Este comando creará una carpeta `dist` con todos los archivos HTML, CSS y JS estáticos, listos para ser desplegados en cualquier servicio de hosting.
+
+---
+
+## Despliegue en Netlify
+
+Este proyecto está optimizado para un despliegue automático y continuo a través de Netlify.
+
+### Flujo Automático
+
+El despliegue es automático. Cada vez que se suben cambios a la rama `main` del repositorio en GitHub, Netlify reconstruye y publica el sitio automáticamente. El flujo es:
+
+1.  Haces `git push` con tus cambios (del código fuente, nunca de la carpeta `dist`).
+2.  Netlify detecta el `push`.
+3.  Netlify ejecuta el `build command` en sus servidores, generando la carpeta `dist` allí.
+4.  Netlify publica el contenido de esa nueva carpeta `dist` en la web.
+
+### Configuración en Netlify
+
+Si necesitas configurar el sitio desde cero en Netlify, estos son los ajustes que debes usar:
+
+- **Build command:** `npm run build`
+- **Publish directory:** `dist`
+- **Base directory:** (dejar en blanco)
+
+**Importante:** El `Base directory` se deja en blanco porque se asume que el repositorio que conectas a Netlify es el proyecto del sitio web en sí, no el monorepo completo que tienes en tu ordenador.
