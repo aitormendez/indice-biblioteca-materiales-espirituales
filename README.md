@@ -1,43 +1,74 @@
-# Astro Starter Kit: Minimal
+# Índice de la Biblioteca Espiritual (Sitio Web)
 
-```sh
-npm create astro@latest -- --template minimal
+Este proyecto contiene el código fuente de un sitio web estático construido con [Astro](https://astro.build/) para visualizar el índice de la biblioteca digital de `Materiales espirituales`.
+
+El propósito de este sitio es ofrecer una interfaz web rápida y sencilla para explorar todos los autores, reveladores y sus obras de un solo vistazo, evitando la necesidad de navegar por las carpetas anidadas del sistema de archivos.
+
+## Tecnologías Utilizadas
+
+- **Framework**: Astro
+- **Estilos**: Tailwind CSS
+- **Generación de Contenido**: Script de Python
+
+## Flujo de Trabajo
+
+El contenido del sitio web se genera dinámicamente a partir de la estructura de directorios de la biblioteca. El proceso consta de dos fases principales:
+
+1.  **Generación de Datos**: Un script de Python (`generar_indice.py`) escanea los directorios de `Materiales espirituales` y crea un archivo `biblioteca.json` que sirve como base de datos para el sitio.
+2.  **Construcción del Sitio**: Astro utiliza este archivo `biblioteca.json` para construir una página HTML estática con el índice completo.
+
+---
+
+## Instrucciones de Uso
+
+Sigue estos pasos para actualizar el contenido y visualizar el sitio web.
+
+### Requisitos Previos
+
+- Tener instalado [Node.js](https://nodejs.org/) (que incluye npm).
+- Tener instalado [Python 3](https://www.python.org/).
+
+### Paso 1: Actualizar el Índice de Contenidos
+
+Cada vez que realices cambios en la biblioteca (añadir, eliminar o renombrar archivos en `Materiales espirituales`), debes regenerar el archivo de datos `biblioteca.json`.
+
+Para ello, desde el directorio raíz del proyecto (`/Volumes/E/Nextcloud/`), ejecuta el siguiente comando en la terminal:
+
+```bash
+python3 scripts/generar_indice.py
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Este comando actualizará el archivo `SitioWeb/src/data/biblioteca.json` con los últimos cambios.
 
-## 🚀 Project Structure
+### Paso 2: Instalar Dependencias (Solo la primera vez)
 
-Inside of your Astro project, you'll see the following folders and files:
+Si es la primera vez que trabajas con el sitio web o si se han añadido nuevas dependencias, necesitas instalarlas.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+Navega al directorio del sitio web y ejecuta `npm install`:
+
+```bash
+cd SitioWeb
+npm install
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Paso 3: Iniciar el Servidor de Desarrollo
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Para ver el sitio web en tu máquina local, puedes iniciar el servidor de desarrollo de Astro.
 
-Any static assets, like images, can be placed in the `public/` directory.
+```bash
+# Asegúrate de estar en el directorio SitioWeb
+npm run dev
+```
 
-## 🧞 Commands
+Esto iniciará un servidor local. Podrás acceder al sitio desde la URL que aparezca en la terminal (normalmente `http://localhost:4321`). El servidor se recargará automáticamente si haces cambios en los archivos del sitio (ej. `index.astro`).
 
-All commands are run from the root of the project, from a terminal:
+### Paso 4: Generar el Sitio Estático (Para Despliegue)
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Cuando quieras generar la versión final del sitio para subirla a un servidor, utiliza el comando `build`.
 
-## 👀 Want to learn more?
+```bash
+# Asegúrate de estar en el directorio SitioWeb
+npm run build
+```
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Este comando creará una carpeta `dist` con todos los archivos HTML, CSS y JS estáticos, listos para ser desplegados en cualquier servicio de hosting.
