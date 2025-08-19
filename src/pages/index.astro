@@ -1,6 +1,8 @@
 ---
 import biblioteca from "../data/biblioteca.json";
 import "../styles/global.css";
+
+const nextcloudBaseUrl = "https://materiales.e451.net/apps/files/?dir=";
 ---
 
 <html lang="es">
@@ -11,66 +13,92 @@ import "../styles/global.css";
     <meta name="generator" content={Astro.generator} />
     <title>Índice por autor de la biblioteca</title>
   </head>
-  <body class="bg-gray-100 text-gray-800 font-sans">
-    <main class="max-w-5xl mx-auto my-8 p-8 bg-white rounded-lg shadow-md">
-      <h1
-        class="text-5xl font-bold text-center text-gray-900 border-b-4 border-gray-200 pb-4 mb-8"
-      >
+  <body class="text-gray-800 font-sans bg-slate-950">
+    <main class="max-w-5xl mx-auto my-8 p-8 bg-slate-900 rounded-lg shadow-md">
+      <h1 class="text-3xl font-bold text-center text-slate-200">
         Índice por autor de la biblioteca
       </h1>
 
+      <!-- Navigation preserved as it was -->
+      <nav class="text-center my-8 p-4 rounded-lg bg-slate-800">
+        <a href="#autores" class="text-xl text-sky-400 hover:underline mx-4"
+          >Autores</a
+        >
+        <a href="#reveladores" class="text-xl text-sky-400 hover:underline mx-4"
+          >Reveladores</a
+        >
+      </nav>
+
+      <!-- Authors Section -->
       <h2
-        class="text-4xl font-semibold text-gray-800 border-b-2 border-gray-200 pb-2 mt-12"
+        id="autores"
+        class="text-3xl font-semibold text-slate-200 border-b-2 border-gray-200 pb-2 mt-12 scroll-mt-24"
       >
         Autores
       </h2>
       {
-        Object.entries(biblioteca.autores).map(([autor, obras]) => (
-          <div class="mt-6">
-            <h2 class="text-2xl font-semibold text-blue-700">{autor}</h2>
-            <ul class="list-none pl-4 mt-2">
-              {obras.map((obra) => (
-                <li class="mb-2">
-                  <a
-                    href={`/${obra.ruta}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-gray-700 hover:text-blue-600 hover:underline"
-                  >
-                    {obra.titulo}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
+        Object.entries(biblioteca.autores).map(([autor, obras]) => {
+          const dirPath =
+            obras.length > 0
+              ? obras[0].ruta.substring(0, obras[0].ruta.lastIndexOf("/"))
+              : "";
+          const authorUrl = `${nextcloudBaseUrl}/${encodeURIComponent(dirPath)}`;
+          return (
+            <div class="mt-6">
+              <h3 class="text-xl font-semibold text-blue-400">
+                <a
+                  href={authorUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sky-500 hover:text-sky-900"
+                >
+                  {autor}
+                </a>
+              </h3>
+              <ul class="list-disc list-inside pl-4 mt-2 text-slate-200">
+                {obras.map((obra) => (
+                  <li class="mb-1">{obra.titulo}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        })
       }
 
+      <!-- Reveladores Section -->
       <h2
-        class="text-4xl font-semibold text-gray-800 border-b-2 border-gray-200 pb-2 mt-12"
+        id="reveladores"
+        class="text-3xl font-semibold text-slate-200 border-b-2 border-gray-200 pb-2 mt-12 scroll-mt-24"
       >
         Reveladores
       </h2>
       {
-        Object.entries(biblioteca.reveladores).map(([revelador, obras]) => (
-          <div class="mt-6">
-            <h2 class="text-2xl font-semibold text-purple-700">{revelador}</h2>
-            <ul class="list-none pl-4 mt-2">
-              {obras.map((obra) => (
-                <li class="mb-2">
-                  <a
-                    href={`/${obra.ruta}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-gray-700 hover:text-purple-600 hover:underline"
-                  >
-                    {obra.titulo}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
+        Object.entries(biblioteca.reveladores).map(([revelador, obras]) => {
+          const dirPath =
+            obras.length > 0
+              ? obras[0].ruta.substring(0, obras[0].ruta.lastIndexOf("/"))
+              : "";
+          const reveladorUrl = `${nextcloudBaseUrl}/${encodeURIComponent(dirPath)}`;
+          return (
+            <div class="mt-6">
+              <h3 class="text-xl font-semibold text-purple-400">
+                <a
+                  href={reveladorUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:underline"
+                >
+                  {revelador}
+                </a>
+              </h3>
+              <ul class="list-disc list-inside pl-4 mt-2 text-sky-300">
+                {obras.map((obra) => (
+                  <li class="mb-1">{obra.titulo}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        })
       }
     </main>
   </body>
