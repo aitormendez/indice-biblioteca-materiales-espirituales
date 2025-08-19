@@ -1,100 +1,77 @@
 ---
-import biblioteca from '../data/biblioteca.json';
+import biblioteca from "../data/biblioteca.json";
+import "../styles/global.css";
 ---
 
 <html lang="es">
-<head>
-	<meta charset="utf-8" />
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-	<meta name="viewport" content="width=device-width" />
-	<meta name="generator" content={Astro.generator} />
-	<title>Índice Completo de la Biblioteca</title>
-	<style>
-		body {
-			font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-			line-height: 1.6;
-			background-color: #f4f4f9;
-			color: #2c2c2c;
-		}
-		main {
-			max-width: 1024px;
-			margin: 2rem auto;
-			background-color: #fff;
-			padding: 2rem 3rem;
-			border-radius: 8px;
-			box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-		}
-		h1 {
-			text-align: center;
-			font-size: 2.8rem;
-			color: #1a1a1a;
-			border-bottom: 3px solid #e0e0e0;
-			padding-bottom: 1rem;
-			margin-bottom: 2rem;
-		}
-		.section-title {
-			font-size: 2.2rem;
-			color: #333;
-			border-bottom: 2px solid #eee;
-			padding-bottom: 0.5rem;
-			margin-top: 3rem;
-		}
-		.entry h2 {
-			font-size: 1.4rem;
-			margin-top: 2rem;
-			margin-bottom: 0.75rem;
-			color: #0056b3;
-		}
-		.entry ul {
-			list-style: none;
-			padding-left: 1rem;
-			margin: 0;
-		}
-		.entry li {
-			margin-bottom: 0.5rem;
-		}
-		.entry a {
-			text-decoration: none;
-			color: #333;
-			transition: color 0.2s ease-in-out;
-		}
-		.entry a:hover {
-			color: #007bff;
-			text-decoration: underline;
-		}
-	</style>
-</head>
-<body>
-	<main>
-		<h1>Índice Completo de la Biblioteca</h1>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Índice por autor de la biblioteca</title>
+  </head>
+  <body class="bg-gray-100 text-gray-800 font-sans">
+    <main class="max-w-5xl mx-auto my-8 p-8 bg-white rounded-lg shadow-md">
+      <h1
+        class="text-5xl font-bold text-center text-gray-900 border-b-4 border-gray-200 pb-4 mb-8"
+      >
+        Índice por autor de la biblioteca
+      </h1>
 
-		<h2 class="section-title">Autores</h2>
-		{Object.entries(biblioteca.autores).map(([autor, obras]) => (
-			<div class="entry">
-				<h2>{autor}</h2>
-				<ul>
-					{obras.map(obra => (
-						<li>
-							<a href={`/${obra.ruta}`} target="_blank" rel="noopener noreferrer">{obra.titulo}</a>
-						</li>
-					))}
-				</ul>
-			</div>
-		))}
+      <h2
+        class="text-4xl font-semibold text-gray-800 border-b-2 border-gray-200 pb-2 mt-12"
+      >
+        Autores
+      </h2>
+      {
+        Object.entries(biblioteca.autores).map(([autor, obras]) => (
+          <div class="mt-6">
+            <h2 class="text-2xl font-semibold text-blue-700">{autor}</h2>
+            <ul class="list-none pl-4 mt-2">
+              {obras.map((obra) => (
+                <li class="mb-2">
+                  <a
+                    href={`/${obra.ruta}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-gray-700 hover:text-blue-600 hover:underline"
+                  >
+                    {obra.titulo}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
 
-		<h2 class="section-title">Reveladores</h2>
-		{Object.entries(biblioteca.reveladores).map(([revelador, obras]) => (
-			<div class="entry">
-				<h2>{revelador}</h2>
-				<ul>
-					{obras.map(obra => (
-						<li>
-							<a href={`/${obra.ruta}`} target="_blank" rel="noopener noreferrer">{obra.titulo}</a>
-						</li>
-					))}
-				</ul>
-			</div>
-		))}
-	</main>
-</body>
+      <h2
+        class="text-4xl font-semibold text-gray-800 border-b-2 border-gray-200 pb-2 mt-12"
+      >
+        Reveladores
+      </h2>
+      {
+        Object.entries(biblioteca.reveladores).map(([revelador, obras]) => (
+          <div class="mt-6">
+            <h2 class="text-2xl font-semibold text-purple-700">{revelador}</h2>
+            <ul class="list-none pl-4 mt-2">
+              {obras.map((obra) => (
+                <li class="mb-2">
+                  <a
+                    href={`/${obra.ruta}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-gray-700 hover:text-purple-600 hover:underline"
+                  >
+                    {obra.titulo}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </main>
+  </body>
 </html>
