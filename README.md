@@ -97,3 +97,46 @@ Si necesitas configurar el sitio desde cero en Netlify, estos son los ajustes qu
 - **Base directory:** (dejar en blanco)
 
 **Importante:** El `Base directory` se deja en blanco porque se asume que el repositorio que conectas a Netlify es el proyecto del sitio web en sí, no el monorepo completo que tienes en tu ordenador.
+
+---
+
+## Miniapp de TikTok
+
+La miniapp editorial de `TikTok` vive ahora en:
+
+- `/tiktok/`
+- `/tiktok/callback`
+
+El flujo actual ya soporta:
+
+- iniciar `Login Kit`
+- recibir el callback del lado servidor
+- intercambiar el `code` por tokens
+- guardar la conexión en una estructura interna local no versionada
+- mostrar si la cuenta objetivo ya está conectada
+
+### Variables de entorno necesarias
+
+Para que el flujo OAuth funcione de verdad, el entorno del servidor debe incluir:
+
+```bash
+TIKTOK_CLIENT_KEY=...
+TIKTOK_CLIENT_SECRET=...
+TIKTOK_REDIRECT_URI=https://espaciosutil.org/tiktok/callback
+TIKTOK_TARGET_ACCOUNT=espacio_sutil
+```
+
+Opcionalmente puede personalizarse:
+
+```bash
+TIKTOK_SCOPE=user.info.basic,video.publish
+TIKTOK_CONNECTIONS_FILE=.data/tiktok-connections.json
+```
+
+### Nota operativa
+
+La conexión guardada se escribe por ahora en un archivo local de runtime:
+
+- `.data/tiktok-connections.json`
+
+Este fichero está ignorado por git y sirve como almacenamiento interno inicial para la integración. La siguiente iteración podrá mover esta persistencia a una tabla interna dedicada.
