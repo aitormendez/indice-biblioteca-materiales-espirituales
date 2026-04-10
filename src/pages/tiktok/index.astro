@@ -1,0 +1,95 @@
+---
+import TiktokShell from "../../components/TiktokShell.astro";
+
+const redirectUri = "https://espaciosutil.org/tiktok/callback";
+---
+
+<TiktokShell
+  title="Publicar en TikTok | Espacio Sutil"
+  description="Miniapp inicial para conectar una cuenta TikTok y revisar la publicación asistida de shorts."
+>
+  <section class="grid w-full gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+    <article class="rounded-[2rem] border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-cyan-950/30 backdrop-blur">
+      <p class="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-sm uppercase tracking-[0.2em] text-cyan-200">
+        Sandbox TikTok
+      </p>
+      <h1 class="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl">
+        Publicar en TikTok con revisión previa y autorización explícita.
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+        Esta miniapp será la entrada editorial para conectar la cuenta de TikTok,
+        revisar una tarea y lanzar la publicación asistida antes de que <strong class="text-white">n8n</strong>
+        ejecute el envío final.
+      </p>
+
+      <div class="mt-8 grid gap-4 sm:grid-cols-3">
+        <div class="rounded-3xl border border-white/8 bg-white/5 p-5">
+          <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Paso 1</p>
+          <h2 class="mt-2 text-xl font-semibold text-white">Conectar TikTok</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            El editor autoriza su cuenta con Login Kit y el callback vuelve a esta web.
+          </p>
+        </div>
+        <div class="rounded-3xl border border-white/8 bg-white/5 p-5">
+          <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Paso 2</p>
+          <h2 class="mt-2 text-xl font-semibold text-white">Revisar tarea</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            La vista final mostrará vídeo, texto y opciones de privacidad antes de publicar.
+          </p>
+        </div>
+        <div class="rounded-3xl border border-white/8 bg-white/5 p-5">
+          <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Paso 3</p>
+          <h2 class="mt-2 text-xl font-semibold text-white">Publicar en TikTok</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-300">
+            Tras la confirmación humana, el backend lanzará el flujo asistido y registrará el resultado.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <aside class="space-y-6">
+      <div class="rounded-[2rem] border border-cyan-400/20 bg-slate-900/80 p-7 shadow-xl shadow-cyan-950/25 backdrop-blur">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-sm uppercase tracking-[0.18em] text-cyan-200">Estado actual</p>
+            <h2 class="mt-2 text-2xl font-semibold text-white">Conexión pendiente</h2>
+          </div>
+          <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-amber-200">
+            Preproducción
+          </span>
+        </div>
+
+        <p class="mt-4 text-sm leading-7 text-slate-300">
+          Esta primera versión fija la URL pública y el callback de <strong class="text-white">TikTok Login Kit</strong>.
+          El siguiente hito conectará esta pantalla con la tarea editorial y con el backend de autorización.
+        </p>
+
+        <div class="mt-6 space-y-3">
+          <a
+            href={redirectUri}
+            class="flex items-center justify-center rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+          >
+            Conectar TikTok
+          </a>
+          <a
+            href="/"
+            class="flex items-center justify-center rounded-2xl border border-white/10 px-5 py-3 text-sm font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/5"
+          >
+            Volver al sitio principal
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-[2rem] border border-white/10 bg-slate-900/70 p-7">
+        <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Redirect URI previsto</p>
+        <code class="mt-3 block rounded-2xl border border-white/8 bg-black/20 px-4 py-3 text-sm text-cyan-100">
+          {redirectUri}
+        </code>
+        <p class="mt-4 text-sm leading-7 text-slate-300">
+          Los vídeos seguirán llegando desde <strong class="text-white">editorial.e451.net</strong> por <code>PULL_FROM_URL</code>;
+          esta miniapp vive en <strong class="text-white">espaciosutil.org</strong> para encajar con la revisión de TikTok.
+        </p>
+      </div>
+    </aside>
+  </section>
+</TiktokShell>
