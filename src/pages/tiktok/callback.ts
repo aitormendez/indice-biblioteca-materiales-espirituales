@@ -58,6 +58,11 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 
   try {
     const config = assertTikTokServerConfig(import.meta.env);
+    if (!config.nocodbConfigured) {
+      throw new Error(
+        "Faltan variables de entorno de NocoDB para guardar la cuenta conectada.",
+      );
+    }
     const targetAccount =
       cookies.get(TIKTOK_TARGET_COOKIE)?.value ?? config.targetAccount;
     const tokenData = await exchangeCodeForTokens({
@@ -71,8 +76,9 @@ export const GET: APIRoute = async ({ cookies, request }) => {
       ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString()
       : null;
 
-    await upsertConnection(config.connectionsFile, {
+    await upsertConnection(config, {
       targetAccount,
+      tiktokUsername: userInfo.username || userInfo.display_name || targetAccount,
       openId: userInfo.open_id || tokenData.openId,
       displayName: userInfo.display_name || targetAccount,
       avatarUrl: userInfo.avatar_url || "",
@@ -80,6 +86,9 @@ export const GET: APIRoute = async ({ cookies, request }) => {
       refreshToken: tokenData.refreshToken,
       scope: tokenData.scope || config.scope,
       expiresAt,
+      status: "connected",
+      connectedAt: new Date().toISOString(),
+      errorLast: null,
     });
 
     cookies.delete(TIKTOK_STATE_COOKIE, { path: "/" });

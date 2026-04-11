@@ -130,13 +130,21 @@ Opcionalmente puede personalizarse:
 
 ```bash
 TIKTOK_SCOPE=user.info.basic,video.publish
-TIKTOK_CONNECTIONS_FILE=.data/tiktok-connections.json
+NOCODB_BASE_URL=https://nocodb.e451.net
+NOCODB_BASE_ID=p0u38cx07ky3btn
+NOCODB_TIKTOK_CONNECTIONS_TABLE_ID=mj4azuo3317m6z3
+NOCODB_XC_TOKEN=...
+NOCODB_BASIC_AUTH_USER=...
+NOCODB_BASIC_AUTH_PASSWORD=...
 ```
 
 ### Nota operativa
 
-La conexión guardada se escribe por ahora en un archivo local de runtime:
+La conexión TikTok se guarda en `NocoDB`, en la tabla:
 
-- `.data/tiktok-connections.json`
+- `tiktok_connections`
 
-Este fichero está ignorado por git y sirve como almacenamiento interno inicial para la integración. La siguiente iteración podrá mover esta persistencia a una tabla interna dedicada.
+Identificadores actuales:
+
+- base: `p0u38cx07ky3btn`
+- tabla: `mj4azuo3317m6z3`
