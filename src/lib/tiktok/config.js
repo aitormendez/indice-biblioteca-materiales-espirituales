@@ -5,15 +5,29 @@ const DEFAULT_TARGET_ACCOUNT = "espacio_sutil";
 const DEFAULT_REDIRECT_URI = "https://espaciosutil.org/tiktok/callback";
 const DEFAULT_STORE_FILE = ".data/tiktok-connections.json";
 
-export function getTikTokConfig(env = import.meta.env) {
-  const clientKey = env.TIKTOK_CLIENT_KEY ?? "";
-  const clientSecret = env.TIKTOK_CLIENT_SECRET ?? "";
-  const redirectUri = env.TIKTOK_REDIRECT_URI ?? DEFAULT_REDIRECT_URI;
-  const scope = env.TIKTOK_SCOPE ?? DEFAULT_SCOPE;
-  const targetAccount = env.TIKTOK_TARGET_ACCOUNT ?? DEFAULT_TARGET_ACCOUNT;
+function readEnvValue(env, key) {
+  if (env && env[key] !== undefined && env[key] !== "") {
+    return env[key];
+  }
+
+  if (typeof process !== "undefined" && process.env?.[key]) {
+    return process.env[key];
+  }
+
+  return "";
+}
+
+export function getTikTokConfig(env = {}) {
+  const clientKey = readEnvValue(env, "TIKTOK_CLIENT_KEY");
+  const clientSecret = readEnvValue(env, "TIKTOK_CLIENT_SECRET");
+  const redirectUri =
+    readEnvValue(env, "TIKTOK_REDIRECT_URI") || DEFAULT_REDIRECT_URI;
+  const scope = readEnvValue(env, "TIKTOK_SCOPE") || DEFAULT_SCOPE;
+  const targetAccount =
+    readEnvValue(env, "TIKTOK_TARGET_ACCOUNT") || DEFAULT_TARGET_ACCOUNT;
   const connectionsFile = resolve(
     process.cwd(),
-    env.TIKTOK_CONNECTIONS_FILE ?? DEFAULT_STORE_FILE,
+    readEnvValue(env, "TIKTOK_CONNECTIONS_FILE") || DEFAULT_STORE_FILE,
   );
 
   return {
@@ -27,7 +41,7 @@ export function getTikTokConfig(env = import.meta.env) {
   };
 }
 
-export function assertTikTokServerConfig(env = import.meta.env) {
+export function assertTikTokServerConfig(env = {}) {
   const config = getTikTokConfig(env);
 
   if (!config.clientKey || !config.clientSecret) {
