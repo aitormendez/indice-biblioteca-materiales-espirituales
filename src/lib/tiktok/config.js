@@ -1,5 +1,5 @@
 const DEFAULT_SCOPE = "user.info.basic,video.publish";
-const DEFAULT_TARGET_ACCOUNT = "espacio_sutil";
+const DEFAULT_TARGET_ACCOUNT = "tiktok:espacio_sutil";
 const DEFAULT_REDIRECT_URI = "https://tiktok.espaciosutil.org/tiktok/callback";
 const DEFAULT_NOCODB_BASE_URL = "https://nocodb.e451.net";
 const DEFAULT_NOCODB_BASE_ID = "p0u38cx07ky3btn";

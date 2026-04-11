@@ -123,7 +123,7 @@ Para que el flujo OAuth funcione de verdad, el entorno del servidor debe incluir
 TIKTOK_CLIENT_KEY=...
 TIKTOK_CLIENT_SECRET=...
 TIKTOK_REDIRECT_URI=https://espaciosutil.org/tiktok/callback
-TIKTOK_TARGET_ACCOUNT=espacio_sutil
+TIKTOK_TARGET_ACCOUNT=tiktok:espacio_sutil
 ```
 
 Opcionalmente puede personalizarse:

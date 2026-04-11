@@ -46,7 +46,7 @@ test("getConnectionByTargetAccount maps a NocoDB record to the app shape", async
           {
             id: 7,
             fields: {
-              target_account: "espacio_sutil",
+              target_account: "tiktok:espacio_sutil",
               tiktok_username: "espacio_sutil",
               display_name: "Espacio Sutil",
               open_id: "open-id-1",
@@ -68,14 +68,14 @@ test("getConnectionByTargetAccount maps a NocoDB record to the app shape", async
 
   const storedConnection = await getConnectionByTargetAccount(
     nocodbConfig,
-    "espacio_sutil",
+    "tiktok:espacio_sutil",
     fetchMock,
   );
 
   assert.equal(fetchCalls.length, 1);
   assert.match(fetchCalls[0].url, /\/api\/v3\/data\/p0u38cx07ky3btn\/mj4azuo3317m6z3\/records/);
   assert.equal(storedConnection?.id, 7);
-  assert.equal(storedConnection?.targetAccount, "espacio_sutil");
+  assert.equal(storedConnection?.targetAccount, "tiktok:espacio_sutil");
   assert.equal(storedConnection?.tiktokUsername, "espacio_sutil");
   assert.equal(storedConnection?.displayName, "Espacio Sutil");
   assert.equal(storedConnection?.accessToken, "access-token-1");
@@ -100,7 +100,7 @@ test("upsertConnection creates a new NocoDB record when target_account does not 
           {
             id: 11,
             fields: {
-              target_account: "espacio_sutil",
+              target_account: "tiktok:espacio_sutil",
               tiktok_username: "espacio_sutil",
               display_name: "Espacio Sutil",
               open_id: "open-id-1",
@@ -123,7 +123,7 @@ test("upsertConnection creates a new NocoDB record when target_account does not 
   const storedConnection = await upsertConnection(
     nocodbConfig,
     {
-      targetAccount: "espacio_sutil",
+      targetAccount: "tiktok:espacio_sutil",
       tiktokUsername: "espacio_sutil",
       openId: "open-id-1",
       displayName: "Espacio Sutil",
@@ -145,7 +145,7 @@ test("upsertConnection creates a new NocoDB record when target_account does not 
   assert.deepEqual(createPayload, [
     {
       fields: {
-        target_account: "espacio_sutil",
+        target_account: "tiktok:espacio_sutil",
         tiktok_username: "espacio_sutil",
         display_name: "Espacio Sutil",
         open_id: "open-id-1",
@@ -175,7 +175,7 @@ test("upsertConnection updates an existing NocoDB record when target_account alr
             {
               id: 9,
               fields: {
-                target_account: "espacio_sutil",
+                target_account: "tiktok:espacio_sutil",
                 display_name: "Espacio Sutil",
               },
             },
@@ -191,7 +191,7 @@ test("upsertConnection updates an existing NocoDB record when target_account alr
           {
             id: 9,
             fields: {
-              target_account: "espacio_sutil",
+              target_account: "tiktok:espacio_sutil",
               display_name: "Espacio Sutil Actualizado",
               status: "connected",
             },
@@ -205,7 +205,7 @@ test("upsertConnection updates an existing NocoDB record when target_account alr
   await upsertConnection(
     nocodbConfig,
     {
-      targetAccount: "espacio_sutil",
+      targetAccount: "tiktok:espacio_sutil",
       displayName: "Espacio Sutil Actualizado",
       status: "connected",
     },
@@ -219,7 +219,7 @@ test("upsertConnection updates an existing NocoDB record when target_account alr
     {
       id: 9,
       fields: {
-        target_account: "espacio_sutil",
+        target_account: "tiktok:espacio_sutil",
         tiktok_username: null,
         display_name: "Espacio Sutil Actualizado",
         open_id: null,
