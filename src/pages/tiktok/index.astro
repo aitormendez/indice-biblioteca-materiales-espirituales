@@ -2,12 +2,16 @@
 import TiktokShell from "../../components/TiktokShell.astro";
 import { getTikTokConfig } from "../../lib/tiktok/config.js";
 import { getConnectionByTargetAccount } from "../../lib/tiktok/store.js";
+import { getReadyTikTokTaskByTargetAccount } from "../../lib/tiktok/tasks.js";
 
 export const prerender = false;
 
 const config = getTikTokConfig(import.meta.env);
 const connection = config.nocodbConfigured
   ? await getConnectionByTargetAccount(config, config.targetAccount)
+  : null;
+const task = config.nocodbConfigured
+  ? await getReadyTikTokTaskByTargetAccount(config, config.targetAccount)
   : null;
 const callbackStatus = Astro.url.searchParams.get("callback");
 const callbackMessage = Astro.url.searchParams.get("message");
@@ -45,7 +49,8 @@ if (callbackStatus === "success") {
       </h1>
       <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
         Esta miniapp ya puede iniciar la autorización de <strong class="text-white">TikTok Login Kit</strong>,
-        recibir el callback del lado servidor y guardar la sesión conectada en <strong class="text-white">NocoDB</strong>.
+        recibir el callback del lado servidor, guardar la sesión conectada en <strong class="text-white">NocoDB</strong>
+        y cargar una tarea editorial real de <strong class="text-white">distribution_tasks</strong>.
       </p>
 
       <div class:list={["mt-8 rounded border px-5 py-4 text-sm leading-7", bannerTone]}>
@@ -70,9 +75,9 @@ if (callbackStatus === "success") {
         </div>
         <div class="rounded border border-white/8 bg-white/5 p-5">
           <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Paso 3</p>
-          <h2 class="mt-2 text-xl font-semibold text-white">Publicar en TikTok</h2>
+          <h2 class="mt-2 text-xl font-semibold text-white">Revisar la tarea</h2>
           <p class="mt-3 text-sm leading-6 text-slate-300">
-            La siguiente iteración cargará la tarea de `NocoDB` y lanzará la publicación asistida.
+            La pantalla carga la tarea lista para TikTok y deja preparado el siguiente paso de publicación asistida.
           </p>
         </div>
       </div>
@@ -156,6 +161,85 @@ if (callbackStatus === "success") {
       </div>
 
       <div class="rounded border border-white/10 bg-slate-900/70 p-7">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Tarea editorial</p>
+            <h2 class="mt-2 text-2xl font-semibold text-white">
+              {task ? `Lista para revisar (#${task.id})` : "Sin tarea TikTok lista"}
+            </h2>
+          </div>
+          {
+            task ? (
+              <span class="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-emerald-200">
+                {task.state}
+              </span>
+            ) : null
+          }
+        </div>
+
+        {
+          task ? (
+            <div class="mt-6 space-y-5">
+              <div class="overflow-hidden rounded border border-white/10 bg-black/20">
+                <video
+                  class="aspect-[9/16] w-full bg-black object-contain"
+                  src={task.resolvedPreviewAssetUrl ?? undefined}
+                  poster={task.resolvedCoverUrl ?? undefined}
+                  controls
+                  preload="metadata"
+                />
+              </div>
+
+              <div class="space-y-4 text-sm leading-7 text-slate-300">
+                <div>
+                  <p class="text-slate-500">Título</p>
+                  <p class="mt-1 text-base font-semibold text-white">{task.title || "Sin título"}</p>
+                </div>
+                <div>
+                  <p class="text-slate-500">Texto de publicación</p>
+                  <p class="mt-1 whitespace-pre-line">{task.captionText || "Sin caption_text"}</p>
+                </div>
+                <div>
+                  <p class="text-slate-500">Hashtags</p>
+                  <p class="mt-1 break-words">{task.hashtags || "Sin hashtags"}</p>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p class="text-slate-500">Destino editorial</p>
+                    <p class="mt-1">{task.targetAccount}</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500">Pieza</p>
+                    <p class="mt-1">{task.pieceDir || "Sin piece_dir"}</p>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-slate-500">Asset resuelto para previsualización</p>
+                  <p class="mt-1 break-all text-cyan-100">{task.resolvedPreviewAssetUrl || "Sin vídeo resuelto"}</p>
+                </div>
+                {
+                  task.resolvedAssetFallbackUrl ? (
+                    <div>
+                      <p class="text-slate-500">Asset TikTok previsto</p>
+                      <p class="mt-1 break-all text-slate-300">{task.resolvedAssetUrl}</p>
+                      <p class="mt-1 text-xs text-slate-500">
+                        La previsualización usa el fallback `master/video.mp4` mientras no exista una variante `tiktok/video.mp4`.
+                      </p>
+                    </div>
+                  ) : null
+                }
+              </div>
+            </div>
+          ) : (
+            <p class="mt-4 text-sm leading-7 text-slate-300">
+              No hay ninguna tarea `ready` para <strong class="text-white">{config.targetAccount}</strong> en
+              <strong class="text-white"> distribution_tasks</strong>.
+            </p>
+          )
+        }
+      </div>
+
+      <div class="rounded border border-white/10 bg-slate-900/70 p-7">
         <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Configuración actual</p>
         <dl class="mt-4 space-y-4 text-sm leading-7 text-slate-300">
           <div>
@@ -175,6 +259,10 @@ if (callbackStatus === "success") {
           <div>
             <dt class="text-slate-500">Tabla de conexiones</dt>
             <dd class="mt-1">{config.nocodbTikTokConnectionsTableId}</dd>
+          </div>
+          <div>
+            <dt class="text-slate-500">Tabla de tareas</dt>
+            <dd class="mt-1">{config.nocodbDistributionTasksTableId}</dd>
           </div>
         </dl>
       </div>

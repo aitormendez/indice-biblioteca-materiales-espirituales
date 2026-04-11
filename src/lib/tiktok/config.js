@@ -4,6 +4,7 @@ const DEFAULT_REDIRECT_URI = "https://tiktok.espaciosutil.org/tiktok/callback";
 const DEFAULT_NOCODB_BASE_URL = "https://nocodb.e451.net";
 const DEFAULT_NOCODB_BASE_ID = "p0u38cx07ky3btn";
 const DEFAULT_TIKTOK_CONNECTIONS_TABLE_ID = "mj4azuo3317m6z3";
+const DEFAULT_DISTRIBUTION_TASKS_TABLE_ID = "mp84my6uijzwm43";
 
 function readEnvValue(env, key) {
   if (env && env[key] !== undefined && env[key] !== "") {
@@ -32,6 +33,9 @@ export function getTikTokConfig(env = {}) {
   const nocodbTikTokConnectionsTableId =
     readEnvValue(env, "NOCODB_TIKTOK_CONNECTIONS_TABLE_ID") ||
     DEFAULT_TIKTOK_CONNECTIONS_TABLE_ID;
+  const nocodbDistributionTasksTableId =
+    readEnvValue(env, "NOCODB_DISTRIBUTION_TASKS_TABLE_ID") ||
+    DEFAULT_DISTRIBUTION_TASKS_TABLE_ID;
   const nocodbApiToken = readEnvValue(env, "NOCODB_XC_TOKEN");
   const nocodbBasicAuthUser = readEnvValue(env, "NOCODB_BASIC_AUTH_USER");
   const nocodbBasicAuthPassword = readEnvValue(
@@ -48,6 +52,7 @@ export function getTikTokConfig(env = {}) {
     nocodbBaseUrl,
     nocodbBaseId,
     nocodbTikTokConnectionsTableId,
+    nocodbDistributionTasksTableId,
     nocodbApiToken,
     nocodbBasicAuthUser,
     nocodbBasicAuthPassword,
@@ -56,6 +61,7 @@ export function getTikTokConfig(env = {}) {
       nocodbBaseUrl &&
         nocodbBaseId &&
         nocodbTikTokConnectionsTableId &&
+        nocodbDistributionTasksTableId &&
         nocodbApiToken &&
         nocodbBasicAuthUser &&
         nocodbBasicAuthPassword,
