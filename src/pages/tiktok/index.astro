@@ -3,6 +3,7 @@ import TiktokShell from "../../components/TiktokShell.astro";
 import { getTikTokConfig } from "../../lib/tiktok/config.js";
 import { getConnectionByTargetAccount } from "../../lib/tiktok/store.js";
 import { getReadyTikTokTaskByTargetAccount } from "../../lib/tiktok/tasks.js";
+import { getTikTokBannerState } from "../../lib/tiktok/view-state.js";
 
 export const prerender = false;
 
@@ -25,24 +26,11 @@ const tikTokPrivacyOptions = [
   "FOLLOWER_OF_CREATOR",
   "SELF_ONLY",
 ];
-
-let bannerTone = "border-white/10 bg-white/5 text-slate-200";
-let bannerTitle = "Sin actividad reciente";
-let bannerMessage =
-  "Todavía no se ha completado ninguna autorización de TikTok en este entorno.";
-
-if (callbackStatus === "success") {
-  bannerTone = "border-emerald-400/25 bg-emerald-400/10 text-emerald-100";
-  bannerTitle = "Cuenta conectada";
-  bannerMessage =
-    "TikTok ha devuelto la autorización correctamente y la cuenta ha quedado registrada en la estructura interna.";
-} else if (callbackStatus === "error") {
-  bannerTone = "border-rose-400/25 bg-rose-400/10 text-rose-100";
-  bannerTitle = "Error de autorización";
-  bannerMessage =
-    callbackMessage ??
-    "La autorización de TikTok no se ha podido completar en esta petición.";
-}
+const banner = getTikTokBannerState({
+  callbackStatus,
+  callbackMessage,
+  connection,
+});
 ---
 
 <TiktokShell
@@ -63,9 +51,9 @@ if (callbackStatus === "success") {
         y cargar una tarea editorial real de <strong class="text-white">distribution_tasks</strong>.
       </p>
 
-      <div class:list={["mt-8 rounded border px-5 py-4 text-sm leading-7", bannerTone]}>
-        <p class="font-semibold">{bannerTitle}</p>
-        <p class="mt-1">{bannerMessage}</p>
+      <div class:list={["mt-8 rounded border px-5 py-4 text-sm leading-7", banner.tone]}>
+        <p class="font-semibold">{banner.title}</p>
+        <p class="mt-1">{banner.message}</p>
       </div>
 
       <div class="mt-8 grid gap-4 sm:grid-cols-3">
