@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   getReadyTikTokTaskByTargetAccount,
   resolveTikTokTaskAssets,
+  updateTikTokTaskSettings,
 } from "../src/lib/tiktok/tasks.js";
 
 const nocodbConfig = {
@@ -106,4 +107,62 @@ test("resolveTikTokTaskAssets falls back to editorial paths when overrides are m
     task.resolvedCoverUrl,
     "https://editorial.e451.net/pieza-001/master/poster.jpg",
   );
+});
+
+test("updateTikTokTaskSettings persists TikTok-specific editorial settings", async () => {
+  const fetchCalls = [];
+  const fetchMock = async (url, options = {}) => {
+    fetchCalls.push({ url, options });
+
+    return new Response(
+      JSON.stringify({
+        records: [
+          {
+            id: 14,
+            fields: {
+              target_account: "tiktok:espacio_sutil",
+              channel: "tiktok_video",
+              state: "ready",
+              tiktok_privacy_level: "SELF_ONLY",
+              tiktok_disable_comment: true,
+              tiktok_disable_duet: false,
+              tiktok_disable_stitch: true,
+            },
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  };
+
+  const updatedTask = await updateTikTokTaskSettings(
+    nocodbConfig,
+    {
+      id: 14,
+      tiktokPrivacyLevel: "SELF_ONLY",
+      tiktokDisableComment: true,
+      tiktokDisableDuet: false,
+      tiktokDisableStitch: true,
+    },
+    fetchMock,
+  );
+
+  assert.equal(fetchCalls.length, 1);
+  assert.equal(fetchCalls[0].options.method, "PATCH");
+  const payload = JSON.parse(fetchCalls[0].options.body);
+  assert.deepEqual(payload, [
+    {
+      id: 14,
+      fields: {
+        tiktok_privacy_level: "SELF_ONLY",
+        tiktok_disable_comment: true,
+        tiktok_disable_duet: false,
+        tiktok_disable_stitch: true,
+      },
+    },
+  ]);
+  assert.equal(updatedTask?.tiktokPrivacyLevel, "SELF_ONLY");
+  assert.equal(updatedTask?.tiktokDisableComment, true);
+  assert.equal(updatedTask?.tiktokDisableDuet, false);
+  assert.equal(updatedTask?.tiktokDisableStitch, true);
 });

@@ -52,6 +52,12 @@ function mapRecord(record) {
     errorLast: fields.error_last ?? null,
     publishedAt: fields.published_at ?? null,
     privacyStatus: fields.privacy_status ?? null,
+    tiktokPrivacyLevel: fields.tiktok_privacy_level ?? null,
+    tiktokDisableComment: Boolean(fields.tiktok_disable_comment),
+    tiktokDisableDuet: Boolean(fields.tiktok_disable_duet),
+    tiktokDisableStitch: Boolean(fields.tiktok_disable_stitch),
+    tiktokPublishId: fields.tiktok_publish_id ?? null,
+    tiktokStatusLast: fields.tiktok_status_last ?? null,
   };
 }
 
@@ -99,4 +105,30 @@ export async function getReadyTikTokTaskByTargetAccount(
     .sort((left, right) => (right.id ?? 0) - (left.id ?? 0))[0];
 
   return matchingTask ? resolveTikTokTaskAssets(matchingTask) : null;
+}
+
+export async function updateTikTokTaskSettings(
+  config,
+  settings,
+  fetchImpl = fetch,
+) {
+  const response = await fetchImpl(buildRecordsUrl(config), {
+    method: "PATCH",
+    headers: buildHeaders(config),
+    body: JSON.stringify([
+      {
+        id: settings.id,
+        fields: {
+          tiktok_privacy_level: settings.tiktokPrivacyLevel ?? null,
+          tiktok_disable_comment: Boolean(settings.tiktokDisableComment),
+          tiktok_disable_duet: Boolean(settings.tiktokDisableDuet),
+          tiktok_disable_stitch: Boolean(settings.tiktokDisableStitch),
+        },
+      },
+    ]),
+  });
+  const payload = await parseResponse(response);
+  const firstRecord = Array.isArray(payload.records) ? payload.records[0] : null;
+
+  return firstRecord ? mapRecord(firstRecord) : null;
 }
