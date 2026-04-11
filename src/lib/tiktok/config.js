@@ -5,6 +5,8 @@ const DEFAULT_NOCODB_BASE_URL = "https://nocodb.e451.net";
 const DEFAULT_NOCODB_BASE_ID = "p0u38cx07ky3btn";
 const DEFAULT_TIKTOK_CONNECTIONS_TABLE_ID = "mj4azuo3317m6z3";
 const DEFAULT_DISTRIBUTION_TASKS_TABLE_ID = "mp84my6uijzwm43";
+const DEFAULT_N8N_BASE_URL = "https://n8n.e451.net";
+const DEFAULT_N8N_TIKTOK_PUBLISH_WEBHOOK_PATH = "cde-publicar-short-v1/tiktok-publish";
 
 function readEnvValue(env, key) {
   if (env && env[key] !== undefined && env[key] !== "") {
@@ -42,6 +44,14 @@ export function getTikTokConfig(env = {}) {
     env,
     "NOCODB_BASIC_AUTH_PASSWORD",
   );
+  const n8nBaseUrl = readEnvValue(env, "N8N_BASE_URL") || DEFAULT_N8N_BASE_URL;
+  const n8nBasicAuthUser =
+    readEnvValue(env, "N8N_BASIC_AUTH_USER") || nocodbBasicAuthUser;
+  const n8nBasicAuthPassword =
+    readEnvValue(env, "N8N_BASIC_AUTH_PASSWORD") || nocodbBasicAuthPassword;
+  const n8nTikTokPublishWebhookPath =
+    readEnvValue(env, "N8N_TIKTOK_PUBLISH_WEBHOOK_PATH") ||
+    DEFAULT_N8N_TIKTOK_PUBLISH_WEBHOOK_PATH;
 
   return {
     clientKey,
@@ -56,6 +66,10 @@ export function getTikTokConfig(env = {}) {
     nocodbApiToken,
     nocodbBasicAuthUser,
     nocodbBasicAuthPassword,
+    n8nBaseUrl,
+    n8nBasicAuthUser,
+    n8nBasicAuthPassword,
+    n8nTikTokPublishWebhookPath,
     configured: Boolean(clientKey && clientSecret && redirectUri),
     nocodbConfigured: Boolean(
       nocodbBaseUrl &&
@@ -65,6 +79,12 @@ export function getTikTokConfig(env = {}) {
         nocodbApiToken &&
         nocodbBasicAuthUser &&
         nocodbBasicAuthPassword,
+    ),
+    n8nConfigured: Boolean(
+      n8nBaseUrl &&
+        n8nBasicAuthUser &&
+        n8nBasicAuthPassword &&
+        n8nTikTokPublishWebhookPath,
     ),
   };
 }

@@ -17,6 +17,8 @@ const callbackStatus = Astro.url.searchParams.get("callback");
 const callbackMessage = Astro.url.searchParams.get("message");
 const taskUpdateStatus = Astro.url.searchParams.get("task_update");
 const taskUpdateMessage = Astro.url.searchParams.get("message");
+const publishStatus = Astro.url.searchParams.get("publish");
+const publishMessage = Astro.url.searchParams.get("message");
 const tikTokPrivacyOptions = [
   "PUBLIC_TO_EVERYONE",
   "MUTUAL_FOLLOW_FRIENDS",
@@ -329,14 +331,39 @@ if (callbackStatus === "success") {
                   >
                     Guardar ajustes TikTok
                   </button>
-                  <button
-                    type="button"
-                    disabled
-                    class="rounded border border-white/10 px-5 py-3 text-sm font-medium text-slate-500"
-                  >
-                    Publicar en TikTok (pendiente n8n)
-                  </button>
                 </div>
+              </form>
+
+              <form method="POST" action="/api/tiktok/publish" class="space-y-4 rounded border border-cyan-400/20 bg-cyan-400/5 p-5">
+                <input type="hidden" name="task_id" value={task.id} />
+                <div>
+                  <p class="text-sm uppercase tracking-[0.16em] text-cyan-200">Disparo a n8n</p>
+                  <p class="mt-2 text-sm leading-6 text-slate-300">
+                    Lanza el workflow con esta tarea exacta por `task_id`. n8n ya no debería coger la primera fila `ready`.
+                  </p>
+                </div>
+
+                {
+                  publishStatus ? (
+                    <div
+                      class:list={[
+                        "rounded border px-4 py-3 text-sm leading-6",
+                        publishStatus === "success"
+                          ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-100"
+                          : "border-rose-400/25 bg-rose-400/10 text-rose-100",
+                      ]}
+                    >
+                      {publishMessage}
+                    </div>
+                  ) : null
+                }
+
+                <button
+                  type="submit"
+                  class="rounded border border-cyan-300/40 bg-cyan-300/90 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                >
+                  Publicar en TikTok
+                </button>
               </form>
             </div>
           ) : (

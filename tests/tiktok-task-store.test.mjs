@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  getTikTokTaskById,
   getReadyTikTokTaskByTargetAccount,
   resolveTikTokTaskAssets,
   updateTikTokTaskSettings,
@@ -15,6 +16,39 @@ const nocodbConfig = {
   nocodbBasicAuthUser: "interno",
   nocodbBasicAuthPassword: "secret",
 };
+
+test("getTikTokTaskById returns the matching record by numeric id", async () => {
+  const fetchCalls = [];
+  const fetchMock = async (url, options = {}) => {
+    fetchCalls.push({ url, options });
+
+    return new Response(
+      JSON.stringify({
+        records: [
+          {
+            id: 14,
+            fields: {
+              target_account: "tiktok:espacio_sutil",
+              channel: "tiktok_video",
+              state: "ready",
+              title: "Tarea exacta",
+              piece_dir: "pieza-001",
+            },
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  };
+
+  const task = await getTikTokTaskById(nocodbConfig, 14, fetchMock);
+
+  assert.equal(fetchCalls.length, 1);
+  assert.match(fetchCalls[0].url, /where=.*Id/);
+  assert.equal(task?.id, 14);
+  assert.equal(task?.title, "Tarea exacta");
+  assert.equal(task?.targetAccount, "tiktok:espacio_sutil");
+});
 
 test("getReadyTikTokTaskByTargetAccount returns the latest ready TikTok task for the target account", async () => {
   const fetchCalls = [];

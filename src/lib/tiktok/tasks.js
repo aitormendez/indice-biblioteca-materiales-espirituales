@@ -107,6 +107,20 @@ export async function getReadyTikTokTaskByTargetAccount(
   return matchingTask ? resolveTikTokTaskAssets(matchingTask) : null;
 }
 
+export async function getTikTokTaskById(config, taskId, fetchImpl = fetch) {
+  const response = await fetchImpl(
+    `${buildRecordsUrl(config)}?page=1&pageSize=1&where=${encodeURIComponent(`(Id,eq,${taskId})`)}`,
+    {
+      headers: buildHeaders(config),
+    },
+  );
+  const payload = await parseResponse(response);
+  const records = Array.isArray(payload.records) ? payload.records : [];
+  const task = records[0] ? mapRecord(records[0]) : null;
+
+  return task ? resolveTikTokTaskAssets(task) : null;
+}
+
 export async function updateTikTokTaskSettings(
   config,
   settings,
