@@ -18,7 +18,12 @@ function redirectToLanding(requestUrl: URL, params: Record<string, string>) {
     landingUrl.searchParams.set(key, value);
   }
 
-  return Response.redirect(landingUrl, 302);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: landingUrl.toString(),
+    },
+  });
 }
 
 export const GET: APIRoute = async ({ cookies, request }) => {

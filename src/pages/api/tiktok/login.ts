@@ -41,5 +41,10 @@ export const GET: APIRoute = async ({ cookies, request }) => {
     state,
   });
 
-  return Response.redirect(authorizeUrl, 302);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: authorizeUrl,
+    },
+  });
 };
