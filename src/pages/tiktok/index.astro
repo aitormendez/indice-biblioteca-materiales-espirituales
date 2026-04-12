@@ -233,7 +233,7 @@ const banner = getTikTokBannerState({
                 <div>
                   <p class="text-sm uppercase tracking-[0.16em] text-slate-400">Configuración TikTok</p>
                   <p class="mt-2 text-sm leading-6 text-slate-300">
-                    Guarda aquí la privacidad y las interacciones que luego consumirá la rama `tiktok_video` de `n8n`.
+                    Guarda aquí la privacidad y las interacciones que consumirá la publicación directa desde esta miniapp.
                   </p>
                 </div>
 
@@ -325,9 +325,9 @@ const banner = getTikTokBannerState({
               <form method="POST" action="/api/tiktok/publish" class="space-y-4 rounded border border-cyan-400/20 bg-cyan-400/5 p-5">
                 <input type="hidden" name="task_id" value={task.id} />
                 <div>
-                  <p class="text-sm uppercase tracking-[0.16em] text-cyan-200">Disparo a n8n</p>
+                  <p class="text-sm uppercase tracking-[0.16em] text-cyan-200">Publicación TikTok</p>
                   <p class="mt-2 text-sm leading-6 text-slate-300">
-                    Lanza el workflow con esta tarea exacta por `task_id`. n8n ya no debería coger la primera fila `ready`.
+                    La miniapp ejecuta el `FILE_UPLOAD` directamente contra TikTok con esta tarea exacta y actualiza `distribution_tasks` con el estado final.
                   </p>
                 </div>
 

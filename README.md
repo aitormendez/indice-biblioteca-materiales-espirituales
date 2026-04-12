@@ -124,6 +124,9 @@ TIKTOK_CLIENT_KEY=...
 TIKTOK_CLIENT_SECRET=...
 TIKTOK_REDIRECT_URI=https://espaciosutil.org/tiktok/callback
 TIKTOK_TARGET_ACCOUNT=tiktok:espacio_sutil
+NOCODB_XC_TOKEN=...
+NOCODB_BASIC_AUTH_USER=...
+NOCODB_BASIC_AUTH_PASSWORD=...
 ```
 
 Opcionalmente puede personalizarse:
@@ -134,13 +137,8 @@ NOCODB_BASE_URL=https://nocodb.e451.net
 NOCODB_BASE_ID=p0u38cx07ky3btn
 NOCODB_TIKTOK_CONNECTIONS_TABLE_ID=mj4azuo3317m6z3
 NOCODB_DISTRIBUTION_TASKS_TABLE_ID=mp84my6uijzwm43
-NOCODB_XC_TOKEN=...
-NOCODB_BASIC_AUTH_USER=...
-NOCODB_BASIC_AUTH_PASSWORD=...
-N8N_BASE_URL=https://n8n.e451.net
-N8N_BASIC_AUTH_USER=...
-N8N_BASIC_AUTH_PASSWORD=...
-N8N_TIKTOK_PUBLISH_WEBHOOK_PATH=cde-publicar-short-v1/tiktok-publish
+TIKTOK_PUBLISH_POLL_INTERVAL_MS=3000
+TIKTOK_PUBLISH_MAX_POLL_ATTEMPTS=8
 ```
 
 ### Nota operativa
@@ -153,3 +151,10 @@ Identificadores actuales:
 
 - base: `p0u38cx07ky3btn`
 - tabla: `mj4azuo3317m6z3`
+
+La tarea editorial se lee y se actualiza en:
+
+- tabla `distribution_tasks`
+- id actual: `mp84my6uijzwm43`
+
+La publicación TikTok se ejecuta ahora directamente desde el backend SSR de la miniapp con `FILE_UPLOAD`. `n8n` ya no forma parte del tramo de upload binario ni del polling de estado.

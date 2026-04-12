@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   getTikTokTaskById,
   getReadyTikTokTaskByTargetAccount,
+  patchDistributionTask,
   resolveTikTokTaskAssets,
   updateTikTokTaskSettings,
 } from "../src/lib/tiktok/tasks.js";
@@ -199,4 +200,66 @@ test("updateTikTokTaskSettings persists TikTok-specific editorial settings", asy
   assert.equal(updatedTask?.tiktokDisableComment, true);
   assert.equal(updatedTask?.tiktokDisableDuet, false);
   assert.equal(updatedTask?.tiktokDisableStitch, true);
+});
+
+test("patchDistributionTask updates publish state fields in distribution_tasks", async () => {
+  const fetchCalls = [];
+  const fetchMock = async (url, options = {}) => {
+    fetchCalls.push({ url, options });
+
+    return new Response(
+      JSON.stringify({
+        records: [
+          {
+            id: 14,
+            fields: {
+              target_account: "tiktok:espacio_sutil",
+              channel: "tiktok_video",
+              state: "published",
+              tiktok_publish_id: "publish-123",
+              tiktok_status_last: "PUBLISH_COMPLETE",
+              external_post_id: "post-123",
+              published_at: "2026-04-12T11:30:00.000Z",
+              error_last: null,
+            },
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  };
+
+  const updatedTask = await patchDistributionTask(
+    nocodbConfig,
+    14,
+    {
+      state: "published",
+      tiktok_publish_id: "publish-123",
+      tiktok_status_last: "PUBLISH_COMPLETE",
+      external_post_id: "post-123",
+      published_at: "2026-04-12T11:30:00.000Z",
+      error_last: null,
+    },
+    fetchMock,
+  );
+
+  assert.equal(fetchCalls.length, 1);
+  assert.equal(fetchCalls[0].options.method, "PATCH");
+  assert.deepEqual(JSON.parse(fetchCalls[0].options.body), [
+    {
+      id: 14,
+      fields: {
+        state: "published",
+        tiktok_publish_id: "publish-123",
+        tiktok_status_last: "PUBLISH_COMPLETE",
+        external_post_id: "post-123",
+        published_at: "2026-04-12T11:30:00.000Z",
+        error_last: null,
+      },
+    },
+  ]);
+  assert.equal(updatedTask?.state, "published");
+  assert.equal(updatedTask?.tiktokPublishId, "publish-123");
+  assert.equal(updatedTask?.tiktokStatusLast, "PUBLISH_COMPLETE");
+  assert.equal(updatedTask?.externalPostId, "post-123");
 });

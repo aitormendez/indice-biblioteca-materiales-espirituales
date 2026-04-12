@@ -1,9 +1,12 @@
 import type { APIRoute } from "astro";
 
 import { assertTikTokServerConfig } from "../../../lib/tiktok/config.js";
-import { triggerTikTokPublish } from "../../../lib/tiktok/publish.js";
+import { publishTikTokTaskDirect } from "../../../lib/tiktok/direct-publish.js";
 import { getConnectionByTargetAccount } from "../../../lib/tiktok/store.js";
-import { getTikTokTaskById } from "../../../lib/tiktok/tasks.js";
+import {
+  getTikTokTaskById,
+  patchDistributionTask,
+} from "../../../lib/tiktok/tasks.js";
 
 export const prerender = false;
 
@@ -24,6 +27,9 @@ function redirectToLanding(requestUrl: URL, params: Record<string, string>) {
 
 export const POST: APIRoute = async ({ request }) => {
   const requestUrl = new URL(request.url);
+  let taskId = 0;
+  let publishId: string | null = null;
+  let statusLast = "FAILED";
 
   try {
     const config = assertTikTokServerConfig(import.meta.env);
@@ -34,14 +40,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    if (!config.n8nConfigured) {
-      throw new Error(
-        "Faltan variables de entorno de n8n para disparar la publicación de TikTok.",
-      );
-    }
-
     const formData = await request.formData();
-    const taskId = Number(formData.get("task_id"));
+    taskId = Number(formData.get("task_id"));
 
     if (!Number.isInteger(taskId) || taskId <= 0) {
       throw new Error("La tarea TikTok no es válida.");
@@ -76,17 +76,71 @@ export const POST: APIRoute = async ({ request }) => {
       throw new Error(`No hay conexión TikTok activa para ${config.targetAccount}.`);
     }
 
-    await triggerTikTokPublish(
-      config,
-      { taskId: task.id, targetAccount: task.targetAccount },
-    );
+    await patchDistributionTask(config, task.id, {
+      state: "processing",
+      error_last: null,
+      tiktok_status_last: "STARTING_UPLOAD",
+    });
+
+    const result = await publishTikTokTaskDirect({
+      task,
+      connection,
+      fetchImpl: fetch,
+      pollIntervalMs: config.tikTokPublishPollIntervalMs,
+      maxPollAttempts: config.tikTokPublishMaxPollAttempts,
+      onProgress: async (progress) => {
+        publishId = progress.publishId ?? publishId;
+        statusLast = progress.status ?? statusLast;
+
+        await patchDistributionTask(config, task.id, {
+          tiktok_publish_id: publishId,
+          tiktok_status_last: statusLast,
+        });
+      },
+    });
+
+    await patchDistributionTask(config, task.id, {
+      state: result.state,
+      tiktok_publish_id: result.publishId,
+      tiktok_status_last: result.tiktokStatusLast,
+      external_post_id: result.externalPostId,
+      external_post_url: result.externalPostUrl,
+      published_at: result.publishedAt,
+      error_last: result.errorLast,
+    });
+
+    if (result.state !== "published") {
+      return redirectToLanding(requestUrl, {
+        publish: "error",
+        message: result.errorLast ?? "TikTok no ha completado la publicación.",
+      });
+    }
 
     return redirectToLanding(requestUrl, {
       publish: "success",
-      message:
-        "La publicación TikTok se ha enviado a n8n. Revisa tiktok_status_last y el histórico del workflow.",
+      message: "TikTok ha confirmado la publicación y NocoDB ya refleja el estado final.",
     });
   } catch (error) {
+    if (taskId > 0) {
+      try {
+        const config = assertTikTokServerConfig(import.meta.env);
+
+        if (config.nocodbConfigured) {
+          await patchDistributionTask(config, taskId, {
+            state: "failed",
+            tiktok_publish_id: publishId,
+            tiktok_status_last: statusLast,
+            error_last:
+              error instanceof Error
+                ? error.message
+                : "No se ha podido publicar en TikTok.",
+          });
+        }
+      } catch {
+        // No ocultar el error original si también falla la persistencia.
+      }
+    }
+
     return redirectToLanding(requestUrl, {
       publish: "error",
       message:

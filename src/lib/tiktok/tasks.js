@@ -146,3 +146,25 @@ export async function updateTikTokTaskSettings(
 
   return firstRecord ? mapRecord(firstRecord) : null;
 }
+
+export async function patchDistributionTask(
+  config,
+  taskId,
+  fields,
+  fetchImpl = fetch,
+) {
+  const response = await fetchImpl(buildRecordsUrl(config), {
+    method: "PATCH",
+    headers: buildHeaders(config),
+    body: JSON.stringify([
+      {
+        id: taskId,
+        fields,
+      },
+    ]),
+  });
+  const payload = await parseResponse(response);
+  const firstRecord = Array.isArray(payload.records) ? payload.records[0] : null;
+
+  return firstRecord ? mapRecord(firstRecord) : null;
+}
