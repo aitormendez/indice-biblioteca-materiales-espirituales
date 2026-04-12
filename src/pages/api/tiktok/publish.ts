@@ -2,6 +2,12 @@ import type { APIRoute } from "astro";
 
 import { assertTikTokServerConfig } from "../../../lib/tiktok/config.js";
 import { publishTikTokTaskDirect } from "../../../lib/tiktok/direct-publish.js";
+import {
+  buildTikTokFailureFields,
+  buildTikTokProgressFields,
+  buildTikTokResultFields,
+  buildTikTokStartFields,
+} from "../../../lib/tiktok/publish-state.js";
 import { getConnectionByTargetAccount } from "../../../lib/tiktok/store.js";
 import {
   getTikTokTaskById,
@@ -76,11 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
       throw new Error(`No hay conexión TikTok activa para ${config.targetAccount}.`);
     }
 
-    await patchDistributionTask(config, task.id, {
-      state: "processing",
-      error_last: null,
-      tiktok_status_last: "STARTING_UPLOAD",
-    });
+    await patchDistributionTask(config, task.id, buildTikTokStartFields());
 
     const result = await publishTikTokTaskDirect({
       task,
@@ -92,22 +94,18 @@ export const POST: APIRoute = async ({ request }) => {
         publishId = progress.publishId ?? publishId;
         statusLast = progress.status ?? statusLast;
 
-        await patchDistributionTask(config, task.id, {
-          tiktok_publish_id: publishId,
-          tiktok_status_last: statusLast,
-        });
+        await patchDistributionTask(
+          config,
+          task.id,
+          buildTikTokProgressFields({
+            publishId,
+            status: statusLast,
+          }),
+        );
       },
     });
 
-    await patchDistributionTask(config, task.id, {
-      state: result.state,
-      tiktok_publish_id: result.publishId,
-      tiktok_status_last: result.tiktokStatusLast,
-      external_post_id: result.externalPostId,
-      external_post_url: result.externalPostUrl,
-      published_at: result.publishedAt,
-      error_last: result.errorLast,
-    });
+    await patchDistributionTask(config, task.id, buildTikTokResultFields(result));
 
     if (result.state !== "published") {
       return redirectToLanding(requestUrl, {
@@ -126,15 +124,15 @@ export const POST: APIRoute = async ({ request }) => {
         const config = assertTikTokServerConfig(import.meta.env);
 
         if (config.nocodbConfigured) {
-          await patchDistributionTask(config, taskId, {
-            state: "failed",
-            tiktok_publish_id: publishId,
-            tiktok_status_last: statusLast,
-            error_last:
-              error instanceof Error
-                ? error.message
-                : "No se ha podido publicar en TikTok.",
-          });
+          await patchDistributionTask(
+            config,
+            taskId,
+            buildTikTokFailureFields({
+              publishId,
+              statusLast,
+              error,
+            }),
+          );
         }
       } catch {
         // No ocultar el error original si también falla la persistencia.
