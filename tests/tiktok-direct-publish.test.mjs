@@ -13,6 +13,7 @@ const baseTask = {
   captionText: "Texto de prueba",
   hashtags: "#uno #dos",
   resolvedAssetUrl: "https://editorial.e451.net/pieza/tiktok/video.mp4",
+  resolvedAssetFallbackUrl: "https://editorial.e451.net/pieza/master/video.mp4",
   tiktokPrivacyLevel: "SELF_ONLY",
   tiktokDisableComment: false,
   tiktokDisableDuet: true,
@@ -115,6 +116,76 @@ test("publishTikTokTaskDirect completa FILE_UPLOAD y devuelve published", async 
   assert.equal(fetchCalls[2].options.headers["Content-Length"], "4");
   assert.equal(fetchCalls[2].options.headers["Content-Range"], "bytes 0-3/4");
   assert.equal(fetchCalls[3].url, "https://open.tiktokapis.com/v2/post/publish/status/fetch/");
+});
+
+test("publishTikTokTaskDirect usa el fallback master cuando la variante TikTok devuelve 404", async () => {
+  const fetchCalls = [];
+
+  const fetchMock = async (url) => {
+    fetchCalls.push(url);
+
+    if (url === baseTask.resolvedAssetUrl) {
+      return new Response("not found", { status: 404 });
+    }
+
+    if (url === baseTask.resolvedAssetFallbackUrl) {
+      return new Response(Uint8Array.from([1, 2, 3]), {
+        status: 200,
+        headers: {
+          "Content-Type": "video/mp4",
+        },
+      });
+    }
+
+    if (url === "https://open.tiktokapis.com/v2/post/publish/video/init/") {
+      return new Response(
+        JSON.stringify({
+          data: {
+            publish_id: "publish-fallback",
+            upload_url: "https://upload.tiktok.test/upload-fallback",
+          },
+          error: { code: "ok" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (url === "https://upload.tiktok.test/upload-fallback") {
+      return new Response(null, { status: 201 });
+    }
+
+    if (url === "https://open.tiktokapis.com/v2/post/publish/status/fetch/") {
+      return new Response(
+        JSON.stringify({
+          data: {
+            status: "PUBLISH_COMPLETE",
+            publicaly_available_post_id: "post-fallback",
+          },
+          error: { code: "ok" },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    throw new Error(`URL inesperada en el test: ${url}`);
+  };
+
+  const result = await publishTikTokTaskDirect({
+    task: baseTask,
+    connection: baseConnection,
+    fetchImpl: fetchMock,
+    sleepImpl: async () => {},
+    now: () => new Date("2026-04-12T16:20:00.000Z"),
+    pollIntervalMs: 1,
+    maxPollAttempts: 1,
+  });
+
+  assert.equal(result.state, "published");
+  assert.equal(result.publishId, "publish-fallback");
+  assert.deepEqual(fetchCalls.slice(0, 2), [
+    baseTask.resolvedAssetUrl,
+    baseTask.resolvedAssetFallbackUrl,
+  ]);
 });
 
 test("publishTikTokTaskDirect devuelve failed cuando TikTok responde FAILED", async () => {

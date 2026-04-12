@@ -35,11 +35,38 @@ function buildPostText(task) {
 }
 
 function resolveAssetUrl(task) {
-  return (
-    task.resolvedAssetUrl?.trim() ||
-    task.resolvedPreviewAssetUrl?.trim() ||
-    task.assetUrl?.trim() ||
-    ""
+  return [
+    task.resolvedAssetUrl?.trim(),
+    task.resolvedAssetFallbackUrl?.trim(),
+    task.resolvedPreviewAssetUrl?.trim(),
+    task.assetUrl?.trim(),
+  ].filter(Boolean);
+}
+
+async function downloadTikTokAsset(task, fetchImpl) {
+  const candidateUrls = resolveAssetUrl(task);
+
+  if (!candidateUrls.length) {
+    throw new Error("La tarea TikTok no tiene un asset_url resoluble.");
+  }
+
+  let lastStatus = 0;
+
+  for (const assetUrl of candidateUrls) {
+    const assetResponse = await fetchImpl(assetUrl);
+
+    if (assetResponse.ok) {
+      return {
+        assetUrl,
+        assetBuffer: Buffer.from(await assetResponse.arrayBuffer()),
+      };
+    }
+
+    lastStatus = assetResponse.status;
+  }
+
+  throw new Error(
+    `No se ha podido descargar el vídeo TikTok (${lastStatus || "sin respuesta"}).`,
   );
 }
 
@@ -62,25 +89,11 @@ export async function publishTikTokTaskDirect({
   maxPollAttempts = 8,
   onProgress = async () => {},
 }) {
-  const assetUrl = resolveAssetUrl(task);
-
-  if (!assetUrl) {
-    throw new Error("La tarea TikTok no tiene un asset_url resoluble.");
-  }
-
   if (!connection.accessToken) {
     throw new Error("La conexión TikTok no tiene access_token disponible.");
   }
 
-  const assetResponse = await fetchImpl(assetUrl);
-
-  if (!assetResponse.ok) {
-    throw new Error(
-      `No se ha podido descargar el vídeo TikTok (${assetResponse.status}).`,
-    );
-  }
-
-  const assetBuffer = Buffer.from(await assetResponse.arrayBuffer());
+  const { assetBuffer } = await downloadTikTokAsset(task, fetchImpl);
   const assetSize = assetBuffer.byteLength;
 
   if (!assetSize) {
