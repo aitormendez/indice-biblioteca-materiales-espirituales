@@ -102,12 +102,12 @@ Si necesitas configurar el sitio desde cero en Netlify, estos son los ajustes qu
 
 ## Miniapp de TikTok
 
-La miniapp editorial de `TikTok` vive ahora en:
+La miniapp editorial de `TikTok` existe como artefacto técnico legado en:
 
 - `/tiktok/`
 - `/tiktok/callback`
 
-El flujo actual ya soporta:
+El flujo implementado llegó a soportar:
 
 - iniciar `Login Kit`
 - recibir el callback del lado servidor
@@ -115,9 +115,21 @@ El flujo actual ya soporta:
 - guardar la conexión en una estructura interna local no versionada
 - mostrar si la cuenta objetivo ya está conectada
 
-### Variables de entorno necesarias
+### Estado operativo vigente
 
-Para que el flujo OAuth funcione de verdad, el entorno del servidor debe incluir:
+La miniapp ya no es la vía operativa principal para publicar shorts CDE. Desde
+la decisión de ESP-346, `TikTok` pasa a publicación manual asistida y
+`distribution_tasks` queda como cola/control editorial y registro de resultado.
+
+No se deben publicar shorts TikTok por `Content Posting API` en esta fase. La
+referencia vigente está en:
+
+- `/Volumes/E/Infraestructura VPS/docs/tiktok.md`
+
+### Variables de entorno legado
+
+Si se reabre una investigación explícita de la miniapp, el entorno del servidor
+debería incluir:
 
 ```bash
 TIKTOK_CLIENT_KEY=...
@@ -141,7 +153,7 @@ TIKTOK_PUBLISH_POLL_INTERVAL_MS=3000
 TIKTOK_PUBLISH_MAX_POLL_ATTEMPTS=8
 ```
 
-### Nota operativa
+### Nota técnica histórica
 
 La conexión TikTok se guarda en `NocoDB`, en la tabla:
 
@@ -157,4 +169,7 @@ La tarea editorial se lee y se actualiza en:
 - tabla `distribution_tasks`
 - id actual: `mp84my6uijzwm43`
 
-La publicación TikTok se ejecuta ahora directamente desde el backend SSR de la miniapp con `FILE_UPLOAD`. `n8n` ya no forma parte del tramo de upload binario ni del polling de estado.
+Históricamente, la publicación TikTok se intentó ejecutar desde el backend SSR
+de la miniapp con `FILE_UPLOAD`. Ese camino queda cancelado como vía operativa:
+`n8n` no publica TikTok y la miniapp no debe usarse para publicar shorts CDE
+salvo nueva decisión explícita.
